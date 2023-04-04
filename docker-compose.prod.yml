@@ -1,0 +1,43 @@
+version: '3.8'
+services:
+  server:
+    build:
+      context: .
+      dockerfile: school-docker/backend/nginx.dockerfile
+    ports:
+      - '8000:80'
+    depends_on:
+      - backend
+      - frontend
+  backend:
+    build: 
+      context: .
+      dockerfile: school-docker/backend/php.dockerfile
+    depends_on:
+      - mysql
+  frontend:
+    build:
+      context: .
+      dockerfile: school-docker/frontend/prod.dockerfile
+    ports:
+      - '3000:3000' 
+  mysql:
+    image: 'mysql:5.7'
+    volumes:
+      - mysql-data:/var/lib/mysql
+    env_file:
+      - school-docker/env/mysql.env 
+  composer:
+    build: 
+      context: .
+      dockerfile: school-docker/backend/composer.dockerfile
+  artisan:
+    build: 
+      context: .
+      dockerfile: school-docker/backend/php.dockerfile
+    entrypoint: ["php", "/var/www/html/artisan"]  
+  # npm:
+  #   image: node:14
+  #   working_dir: /
+volumes:
+  mysql-data:
